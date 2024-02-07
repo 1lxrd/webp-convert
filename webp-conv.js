@@ -1,4 +1,7 @@
 dir = '/home/xnelxrd/Documents/'; //variable with path to files
+
+//!!! BEFORE USING CREATE RESULT FOLDER in this directory !!!
+
 temp = /(.+\.jpg)|(.+\.jpeg)|(.+\.png)/ //regular for checking if filetype is image, add more if u want to use another type of image
 
 const webp=require('webp-converter');
