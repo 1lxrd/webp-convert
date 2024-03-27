@@ -1,5 +1,5 @@
 from ftplib import FTP
-from Naked.toolshed.shell import execute_js, muterun_js
+from Naked.toolshed.shell import muterun_js
 from pathlib import Path
 import re
 import csv
@@ -36,33 +36,40 @@ def check_if_optimized(f):
 
 
 def upload(p, f, ext):
-    for i in p.rglob(ext):
+    for _ in p.rglob(ext):
         with open(f'{f}', 'rb') as file:
             ftp.storbinary(f'STOR {f}', file)
         print(f'{f} uploaded')
         os.remove(f)
 
 
-with open('config.csv') as f:
-    reader = csv.reader(f)
-    scan = list(reader)
-    config = scan[1]
+def read_config():
+    with open('config.csv') as f:
+        reader = csv.reader(f)
+        scan = list(reader)
+        del scan[0]
+    return scan
+
 
 temp = r'(.+\.jpg)|(.+\.jpeg)|(.+\.png)|(.+\.JPG)|(.+\.JPEG)'
 
-ftp = FTP(config[0])
-ftp.login(user=config[1], passwd=config[2])
-ftp.retrlines('LIST')
-ftp.cwd(config[3])
-ftp.retrlines('LIST')
-a = ftp.nlst()
+conf = read_config()
 
-for i in a:
-    download(i)
-    check_if_optimized(i)
+for i in conf:
 
-    p = Path("./")
-    upload(p, i, '*.jpg')
-    upload(p, i, '*.png')
-    upload(p, i, '*.jpeg')
-    upload(p, i, '*.webp')
+    ftp = FTP(i[0])
+    ftp.login(user=i[1], passwd=i[2])
+    ftp.retrlines('LIST')
+    ftp.cwd(i[3])
+    ftp.retrlines('LIST')
+    a = ftp.nlst()
+
+    for j in a:
+        download(j)
+        check_if_optimized(j)
+
+        t = Path("./")
+        upload(t, j, '*.jpg')
+        upload(t, j, '*.png')
+        upload(t, j, '*.jpeg')
+        upload(t, j, '*.webp')
